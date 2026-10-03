@@ -1,0 +1,52 @@
+[
+  {
+    "id": "cat-makhana",
+    "slug": "makhana",
+    "name": "POPPED MAKHANA",
+    "tagline": "Loud crunch. Zero guilt. 100% Chaos.",
+    "description": "Slow-roasted foxnuts dusted in ungodly amounts of bold spice blends. Light as air, hits like a freight train.",
+    "image": "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?q=80&w=800&auto=format&fit=crop",
+    "itemCount": 5,
+    "bgAccent": "bg-brand-lime"
+  },
+  {
+    "id": "cat-chips",
+    "slug": "chips",
+    "name": "POTATO WAFERS",
+    "tagline": "Thick cut. Heavy crunch. Certified greasy perfection.",
+    "description": "Golden kettle-cooked wafers fried to extreme crispiness and heavily coated in streetwear flavor profiles.",
+    "image": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?q=80&w=800&auto=format&fit=crop",
+    "itemCount": 6,
+    "bgAccent": "bg-brand-orange"
+  },
+  {
+    "id": "cat-popcorn",
+    "slug": "popcorn",
+    "name": "BUTTERFLY POPCORN",
+    "tagline": "Explosive kernels loaded with illegal flavor.",
+    "description": "Jumbo mushroom and butterfly popcorn popped fresh and tumbled in sweet, smoky, and buttery glazes.",
+    "image": "https://images.unsplash.com/photo-1578849278619-e73505e9610f?q=80&w=800&auto=format&fit=crop",
+    "itemCount": 5,
+    "bgAccent": "bg-brand-black text-brand-lime"
+  },
+  {
+    "id": "cat-cookies",
+    "slug": "cookies",
+    "name": "THICK COOKIES",
+    "tagline": "Chunky. Gooey. Heavyweight sweet bangers.",
+    "description": "Overloaded bakery-grade cookies baked with brown butter, dark cocoa chunks, and unexpected flavor twists.",
+    "image": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?q=80&w=800&auto=format&fit=crop",
+    "itemCount": 5,
+    "bgAccent": "bg-paper-dark"
+  },
+  {
+    "id": "cat-trail-mix",
+    "slug": "trail-mix",
+    "name": "NUTS & TRAIL MIX",
+    "tagline": "Power packed fuel for late night degenerate hours.",
+    "description": "Glazed cashews, smoked almonds, giant raisins, and dark chocolate drops tossed in sea salt & chili.",
+    "image": "https://images.unsplash.com/photo-1608797178974-15b35a64056b?q=80&w=800&auto=format&fit=crop",
+    "itemCount": 5,
+    "bgAccent": "bg-brand-lime/20"
+  }
+]

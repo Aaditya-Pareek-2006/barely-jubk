@@ -1,0 +1,130 @@
+@import "./typography.css";
+@import "./animations.css";
+
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #F5F2EB;
+    color: #111111;
+    background-image: radial-gradient(#111111 0.75px, transparent 0.75px);
+    background-size: 24px 24px;
+    background-position: 0 0;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F5F2EB;
+    border-left: 1px solid #111111;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #111111;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #CCFF00;
+  }
+}
+
+@utility bg-paper-texture {
+  background-color: #F5F2EB;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+@utility bg-dark-texture {
+  background-color: #111111;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.07'/%3E%3C/svg%3E");
+}
+
+@utility bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(17, 17, 17, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(17, 17, 17, 0.07) 1px, transparent 1px);
+}
+
+@utility bg-grid-dark {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(204, 255, 0, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(204, 255, 0, 0.08) 1px, transparent 1px);
+}
+
+@utility shadow-brutal {
+  box-shadow: 4px 4px 0px 0px #111111;
+}
+
+@utility shadow-brutal-lg {
+  box-shadow: 6px 6px 0px 0px #111111;
+}
+
+@utility shadow-brutal-sm {
+  box-shadow: 2px 2px 0px 0px #111111;
+}
+
+@utility shadow-brutal-lime {
+  box-shadow: 4px 4px 0px 0px #CCFF00;
+}
+
+@utility shadow-brutal-orange {
+  box-shadow: 4px 4px 0px 0px #FF4D00;
+}
+
+@utility bg-paper {
+  background-color: #F5F2EB;
+}
+
+@utility bg-paper-dark {
+  background-color: #EBE6DA;
+}
+
+@utility bg-brand-black {
+  background-color: #111111;
+}
+
+@utility text-brand-black {
+  color: #111111;
+}
+
+@utility border-brand-black {
+  border-color: #111111;
+}
+
+@utility bg-brand-dark {
+  background-color: #181818;
+}
+
+@utility bg-brand-lime {
+  background-color: #CCFF00;
+}
+
+@utility text-brand-lime {
+  color: #CCFF00;
+}
+
+@utility border-brand-lime {
+  border-color: #CCFF00;
+}
+
+@utility bg-brand-orange {
+  background-color: #FF4D00;
+}
+
+@utility text-brand-orange {
+  color: #FF4D00;
+}
+
+@utility border-brand-orange {
+  border-color: #FF4D00;
+}
+
+@utility text-stroke-sm {
+  -webkit-text-stroke: 1px #111111;
+}
+
+@utility text-stroke-md {
+  -webkit-text-stroke: 2px #111111;
+}
