@@ -14,11 +14,14 @@ The frontend Vite proxy forwards `/api` to `http://localhost:4000`. If the backe
 
 For a no-gateway local checkout, choose **Mock UPI (Test)**. The review screen offers simulated success and failure; no bank or real payment is contacted. Mock payment is disabled when `NODE_ENV=production`. Cash on Delivery is also available. Razorpay checkout requires test credentials in `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET`. Put Razorpay test credentials in this folder's `.env`, then restart the API. Configure the provider webhook at `/api/payments/webhook` with the same `RAZORPAY_WEBHOOK_SECRET`; subscribe to `payment.captured`, `payment.failed`, and `order.paid`. The API verifies checkout signatures and webhook signatures.
 
+Password reset uses one-time, 30-minute tokens stored as hashes in PostgreSQL. In local development, reset links for existing accounts are printed in the backend terminal. To send real reset emails, set `APP_ORIGIN`, `RESEND_API_KEY`, and `EMAIL_FROM` in `backend/.env`; configure a sender allowed by your Resend account. The API never returns reset tokens in its response. Run `npm run db:init` after updating to create the password reset token table.
+
 ## Endpoints
 
 - `GET /api/health`
 - `GET /api/products`, `GET /api/products/:slug`, `GET /api/categories`
 - `POST /api/auth/register`, `POST /api/auth/login`, `GET/PATCH /api/auth/me`
+- `POST /api/auth/forgot-password`, `POST /api/auth/reset-password`
 - `POST /api/orders`, `GET /api/orders`, `GET /api/orders/:id`, `POST /api/orders/:id/verify-payment`, `POST /api/orders/:id/mock-payment` (development only)
 - `GET/POST /api/admin/products`, `PATCH/DELETE /api/admin/products/:id`, `PATCH /api/admin/products/:id/stock`
 - `GET /api/admin/users`, `PATCH /api/admin/users/:id/role`

@@ -14,6 +14,8 @@ import { OrderDetails } from '../pages/OrderDetails';
 import { Profile } from '../pages/Profile';
 import { Login } from '../pages/Login';
 import { Signup } from '../pages/Signup';
+import { ForgotPassword } from '../pages/ForgotPassword';
+import { ResetPassword } from '../pages/ResetPassword';
 import { SnackFinderPage } from '../pages/SnackFinder';
 import { BuildYourBoxPage } from '../pages/BuildYourBox';
 
@@ -65,6 +67,8 @@ export const AppRoutes: React.FC = () => {
       <Route path="/profile" element={<Profile />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Admin Panel Nested Routes */}
       <Route path="/admin" element={<AdminLayout />}>

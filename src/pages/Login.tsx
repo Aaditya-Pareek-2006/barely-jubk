@@ -69,6 +69,7 @@ export const Login: React.FC = () => {
           </form>
 
           <div className="text-center font-mono text-xs pt-4 border-t border-gray-200">
+            <Link to="/forgot-password" className="block mb-3 font-bold text-brand-orange hover:underline">FORGOT PASSWORD?</Link>
             <span>DON'T HAVE AN ACCOUNT? </span>
             <Link to="/signup" state={{from:returnTo}} className="font-bold text-brand-orange hover:underline">
               CREATE ACCOUNT
