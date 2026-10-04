@@ -4,8 +4,9 @@ import { LucideIcon, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 interface StatCardProps {
   title: string;
   value: string;
-  change: string;
-  isPositive: boolean;
+  change?: string;
+  isPositive?: boolean;
+  caption?: string;
   icon: LucideIcon;
   iconBgColor?: string;
 }
@@ -15,6 +16,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   value,
   change,
   isPositive,
+  caption,
   icon: Icon,
   iconBgColor = 'bg-slate-100 text-slate-700'
 }) => {
@@ -27,7 +29,8 @@ export const StatCard: React.FC<StatCardProps> = ({
         <span className="text-2xl font-bold text-slate-900 tracking-tight block">
           {value}
         </span>
-        <div className="flex items-center gap-1 mt-2 text-xs font-medium">
+        {(change||caption)&&<div className="flex items-center gap-1 mt-2 text-xs font-medium">
+          {change&&<>
           {isPositive ? (
             <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600" />
           ) : (
@@ -36,8 +39,9 @@ export const StatCard: React.FC<StatCardProps> = ({
           <span className={isPositive ? 'text-emerald-600' : 'text-rose-600'}>
             {change}
           </span>
-          <span className="text-slate-400 font-normal">vs last month</span>
-        </div>
+          </>}
+          {caption&&<span className="text-slate-400 font-normal">{caption}</span>}
+        </div>}
       </div>
 
       <div className={`p-3 rounded-lg ${iconBgColor}`}>

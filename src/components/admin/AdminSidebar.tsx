@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Users, Layers, Ticket, BarChart3, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, Layers, Ticket, BarChart3, ArrowLeft, ShieldCheck } from 'lucide-react';
 import logoImg from '../../assets/branding/barely-junk-logo.png';
 
 export const AdminSidebar: React.FC = () => {
@@ -11,6 +11,7 @@ export const AdminSidebar: React.FC = () => {
     { label: 'Products', path: '/admin/products', icon: Package },
     { label: 'Orders', path: '/admin/orders', icon: ShoppingCart },
     { label: 'Customers', path: '/admin/customers', icon: Users },
+    { label: 'Admin Access', path: '/admin/access', icon: ShieldCheck },
     { label: 'Inventory', path: '/admin/inventory', icon: Layers },
     { label: 'Coupons', path: '/admin/coupons', icon: Ticket },
     { label: 'Analytics', path: '/admin/analytics', icon: BarChart3 },

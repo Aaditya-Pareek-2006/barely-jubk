@@ -16,4 +16,4 @@ The frontend proxies `/api` requests to `http://localhost:4000`. Verify the API 
 - `backend/server/` — Express routes, middleware, and PostgreSQL schema/seeding.
 - `backend/.env.example` — backend configuration template.
 
-Set Razorpay test credentials in `backend/.env` to exercise online checkout. Never commit real credentials.
+For local checkout without a gateway account, select **Mock UPI (Test)** to simulate successful or failed payments. This is only a development aid; it does not transfer money and is disabled when the backend runs with `NODE_ENV=production`. Razorpay test credentials are another option. Never commit payment credentials.

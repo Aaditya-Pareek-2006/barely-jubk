@@ -1,10 +1,11 @@
 import React from 'react';
-import { Bell, Search, User } from 'lucide-react';
 import { userService } from '../../services/userService';
 import { UserProfile } from '../../types/user';
+import { useNavigate } from 'react-router-dom';
 
 export const AdminHeader: React.FC<{ title: string }> = ({ title }) => {
   const user = userService.getCurrentUser() || ({ name: 'Admin', email: '', phone: '' } as UserProfile);
+  const navigate=useNavigate();
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-30">
@@ -13,32 +14,13 @@ export const AdminHeader: React.FC<{ title: string }> = ({ title }) => {
       </h1>
 
       <div className="flex items-center gap-4">
-        {/* Search */}
-        <div className="relative hidden md:block">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-          <input
-            type="text"
-            placeholder="Search dashboard..."
-            className="pl-9 pr-3 py-1.5 text-xs bg-slate-100 border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 w-60"
-          />
-        </div>
-
-        {/* Notifications */}
-        <button className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-full transition-colors relative">
-          <Bell className="w-5 h-5" />
-          <span className="w-2 h-2 bg-emerald-500 rounded-full absolute top-2 right-2" />
-        </button>
-
+        <button onClick={()=>{userService.logoutUser();navigate('/login',{state:{from:'/admin'}});}} className="text-xs font-semibold text-slate-600 hover:text-slate-950 underline">Sign out</button>
         {/* Admin User Avatar */}
         <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="w-8 h-8 rounded-full object-cover border border-slate-300"
-          />
+          <div className="w-8 h-8 rounded-full bg-slate-800 text-white grid place-items-center text-xs font-bold" aria-label={user.name}>{user.name.slice(0,1).toUpperCase()}</div>
           <div className="hidden sm:block text-left">
             <p className="text-xs font-semibold text-slate-800 leading-none">{user.name}</p>
-            <span className="text-[10px] font-medium text-slate-500">Super Admin</span>
+            <span className="text-[10px] font-medium text-slate-500">Administrator</span>
           </div>
         </div>
       </div>

@@ -1,9 +1,9 @@
 import React from 'react';
-import { MOCK_ORDERS } from '../../data/orders';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { Link } from 'react-router-dom';
+import { AdminOrder } from '../../services/adminService';
 
-export const RecentOrders: React.FC = () => {
+export const RecentOrders: React.FC<{orders:AdminOrder[]}> = ({orders}) => {
   return (
     <div className="bg-white border border-slate-200 rounded-lg shadow-xs overflow-hidden">
       <div className="p-4 border-b border-slate-200 flex items-center justify-between">
@@ -25,7 +25,7 @@ export const RecentOrders: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
-            {MOCK_ORDERS.map(order => (
+            {orders.map(order => (
               <tr key={order.id} className="hover:bg-slate-50">
                 <td className="p-3 font-mono font-bold text-slate-900">{order.id}</td>
                 <td className="p-3">{order.shippingAddress.fullName}</td>

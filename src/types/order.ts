@@ -29,7 +29,7 @@ export interface Order {
   shippingFee: number;
   total: number;
   status: OrderStatus;
-  paymentMethod: 'UPI' | 'Card' | 'NetBanking' | 'Cash on Delivery';
+  paymentMethod: 'UPI' | 'Card' | 'NetBanking' | 'Cash on Delivery' | 'Mock UPI (Test)';
   paymentStatus: 'Paid' | 'Pending' | 'Failed';
   shippingAddress: ShippingAddress;
   estimatedDelivery: string;

@@ -2,6 +2,7 @@ import { ShippingAddress } from './order';
 
 export interface UserProfile {
   id: string;
+  role?: 'customer' | 'admin';
   name: string;
   email: string;
   phone: string;

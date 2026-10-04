@@ -1,8 +1,9 @@
-import React from 'react';
-import { Routes, Route, Outlet } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, Outlet, useNavigate } from 'react-router-dom';
 import { Home } from '../pages/Home';
 import { Shop } from '../pages/Shop';
 import { Category } from '../pages/Category';
+import { Categories } from '../pages/Categories';
 import { ProductDetails } from '../pages/ProductDetails';
 import { SearchPage } from '../pages/Search';
 import { Wishlist } from '../pages/Wishlist';
@@ -25,8 +26,15 @@ import { AdminCustomers } from '../pages/admin/AdminCustomers';
 import { AdminInventory } from '../pages/admin/AdminInventory';
 import { AdminCoupons } from '../pages/admin/AdminCoupons';
 import { AdminAnalytics } from '../pages/admin/AdminAnalytics';
+import { AdminAccess } from '../pages/admin/AdminAccess';
+import { userService } from '../services/userService';
 
 const AdminLayout: React.FC = () => {
+  const [state,setState]=useState<'loading'|'allowed'|'denied'>('loading');
+  const navigate=useNavigate();
+  useEffect(()=>{let active=true;userService.restoreSession().then(user=>{if(!active)return;if(user?.role==='admin')setState('allowed');else{setState('denied');if(!user)navigate('/login',{replace:true,state:{from:'/admin'}});}});return()=>{active=false;};},[navigate]);
+  if(state==='loading')return <div className="min-h-screen grid place-items-center bg-slate-100 font-mono">VERIFYING ADMIN ACCESS…</div>;
+  if(state==='denied')return <div className="min-h-screen grid place-items-center bg-slate-100 p-6 text-center"><div><h1 className="text-2xl font-bold">Admin access required</h1><p className="mt-2">Sign in with an administrator account to open this area.</p></div></div>;
   return (
     <div className="flex min-h-screen bg-slate-100 text-slate-900 font-sans selection:bg-slate-900 selection:text-white">
       <AdminSidebar />
@@ -44,6 +52,7 @@ export const AppRoutes: React.FC = () => {
       <Route path="/" element={<Home />} />
       <Route path="/shop" element={<Shop />} />
       <Route path="/category/:slug" element={<Category />} />
+      <Route path="/categories" element={<Categories />} />
       <Route path="/product/:slug" element={<ProductDetails />} />
       <Route path="/search" element={<SearchPage />} />
       <Route path="/snack-finder" element={<SnackFinderPage />} />
@@ -63,6 +72,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="products" element={<AdminProducts />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="customers" element={<AdminCustomers />} />
+        <Route path="access" element={<AdminAccess />} />
         <Route path="inventory" element={<AdminInventory />} />
         <Route path="coupons" element={<AdminCoupons />} />
         <Route path="analytics" element={<AdminAnalytics />} />

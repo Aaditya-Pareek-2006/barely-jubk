@@ -1,101 +1,51 @@
-import React, { useState } from 'react';
-import { PRODUCTS } from '../../data/products';
+import React,{useEffect,useMemo,useState} from 'react';
 import { formatCurrency } from '../../utils/formatCurrency';
-import { Edit2, Trash2, Plus, Search } from 'lucide-react';
+import { Search,Plus,Trash2,Edit2,X } from 'lucide-react';
 import { Product } from '../../types/product';
+import { adminService,AdminProductInput } from '../../services/adminService';
+import { CATEGORIES } from '../../data/categories';
+
+type ProductForm=AdminProductInput&{imageText:string;tagsText:string};
+const emptyForm=():ProductForm=>({slug:'',name:'',category:CATEGORIES[0].slug,shortDescription:'',description:'',price:0,compareAtPrice:null,images:[],weight:'',stock:0,flavor:'',badge:null,tags:[],imageText:'',tagsText:''});
+const toForm=(p:Product):ProductForm=>({slug:p.slug,name:p.name,category:p.category,shortDescription:p.shortDescription,description:p.description,price:p.price,compareAtPrice:p.compareAtPrice??null,images:p.images,weight:p.weight,stock:p.stock,flavor:p.flavor,badge:p.badge??null,tags:p.tags,imageText:p.images.join(', '),tagsText:p.tags.join(', ')});
+const normalize=(f:ProductForm):AdminProductInput=>({slug:f.slug.trim().toLowerCase().replace(/\s+/g,'-'),name:f.name.trim(),category:f.category,shortDescription:f.shortDescription.trim(),description:f.description.trim(),price:Number(f.price),compareAtPrice:f.compareAtPrice===null||f.compareAtPrice===undefined?null:Number(f.compareAtPrice),images:f.imageText.split(',').map(s=>s.trim()).filter(Boolean),weight:f.weight.trim(),stock:Number(f.stock),flavor:f.flavor.trim(),badge:f.badge?.trim()||null,tags:f.tagsText.split(',').map(s=>s.trim()).filter(Boolean)});
 
 export const InventoryTable: React.FC = () => {
-  const [productList, setProductList] = useState<Product[]>(PRODUCTS);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [productList,setProductList]=useState<Product[]>([]);const [searchTerm,setSearchTerm]=useState('');const [error,setError]=useState('');const [loading,setLoading]=useState(true);
+  const [editing,setEditing]=useState<Product|null|false>(false);const [form,setForm]=useState<ProductForm>(emptyForm);const [saving,setSaving]=useState(false);const [stockDrafts,setStockDrafts]=useState<Record<string,string>>({});const [savingStock,setSavingStock]=useState<string|null>(null);
+  useEffect(()=>{adminService.products().then(setProductList).catch(e=>setError(e instanceof Error?e.message:'Could not load products.')).finally(()=>setLoading(false));},[]);
+  const filtered=useMemo(()=>productList.filter(p=>p.name.toLowerCase().includes(searchTerm.toLowerCase())||p.categoryName.toLowerCase().includes(searchTerm.toLowerCase())),[productList,searchTerm]);
+  const beginAdd=()=>{setEditing(null);setForm(emptyForm());setError('');};
+  const beginEdit=(p:Product)=>{setEditing(p);setForm(toForm(p));setError('');};
+  const saveProduct=async(e:React.FormEvent)=>{e.preventDefault();setSaving(true);setError('');try{const input=normalize(form);const saved=editing?await adminService.updateProduct(editing.id,input):await adminService.createProduct(input);setProductList(prev=>editing?prev.map(p=>p.id===saved.id?saved:p):[saved,...prev]);setEditing(false);}catch(err){setError(err instanceof Error?err.message:'Could not save product.');}finally{setSaving(false);}};
+  const removeProduct=async(p:Product)=>{if(!window.confirm(`Remove ${p.name} from the catalog? Existing orders keep their saved item details.`))return;setError('');try{await adminService.deleteProduct(p.id);setProductList(prev=>prev.filter(item=>item.id!==p.id));}catch(err){setError(err instanceof Error?err.message:'Could not remove product.');}};
+  const saveStock=async(p:Product)=>{const stock=Number(stockDrafts[p.id]??p.stock);if(!Number.isInteger(stock)||stock<0||stock>1_000_000){setError('Stock must be a whole number from 0 to 1,000,000.');return;}setSavingStock(p.id);setError('');try{const updated=await adminService.updateStock(p.id,stock);setProductList(prev=>prev.map(item=>item.id===p.id?{...item,stock:updated.stock}:item));setStockDrafts(prev=>({...prev,[p.id]:String(updated.stock)}));}catch(err){setError(err instanceof Error?err.message:'Could not update stock.');}finally{setSavingStock(null);}};
+  const formOpen=editing!==false;
 
-  const filtered = productList.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.categoryName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to remove this snack from inventory?')) {
-      setProductList(prev => prev.filter(p => p.id !== id));
-    }
-  };
-
-  return (
-    <div className="bg-white border border-slate-200 rounded-lg shadow-xs space-y-4 p-5">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-          <input
-            type="text"
-            placeholder="Search catalog by name..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded focus:outline-none focus:border-slate-400"
-          />
-        </div>
-
-        <button
-          onClick={() => alert('Add Product modal form ready for backend connection!')}
-          className="w-full sm:w-auto px-4 py-2 bg-slate-900 text-white font-sans text-xs font-semibold rounded hover:bg-slate-800 transition-colors flex items-center justify-center gap-1.5"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Snack</span>
-        </button>
+  return <div className="bg-white border border-slate-200 rounded-lg shadow-xs space-y-4 p-5">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4"><label className="relative w-full sm:w-72"><Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5"/><input value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} placeholder="Search products…" className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded"/></label><button onClick={beginAdd} className="w-full sm:w-auto px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded flex items-center justify-center gap-2"><Plus className="w-4 h-4"/>Add Product</button></div>
+    {error&&!formOpen&&<p role="alert" className="text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded p-3">{error}</p>}
+    <div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead className="bg-slate-50 border-b text-slate-500 font-semibold uppercase"><tr><th className="p-3">Product</th><th className="p-3">Category</th><th className="p-3">Price</th><th className="p-3">Inventory</th><th className="p-3">Actions</th></tr></thead><tbody className="divide-y text-slate-700">
+      {loading&&<tr><td colSpan={5} className="p-6 text-center">Loading products…</td></tr>}{!loading&&!filtered.length&&<tr><td colSpan={5} className="p-6 text-center">No products found.</td></tr>}
+      {filtered.map(p=><tr key={p.id}><td className="p-3"><div className="flex items-center gap-3"><img src={p.images[0]} alt="" className="w-10 h-10 rounded object-cover border"/><span className="font-bold text-slate-900">{p.name}</span></div></td><td className="p-3">{p.categoryName}</td><td className="p-3 font-semibold">{formatCurrency(p.price)}</td><td className="p-3"><div className="flex items-center gap-2"><input aria-label={`Stock for ${p.name}`} type="number" min="0" max="1000000" value={stockDrafts[p.id]??p.stock} onChange={e=>setStockDrafts(prev=>({...prev,[p.id]:e.target.value}))} className="w-24 border rounded px-2 py-1"/><button disabled={savingStock===p.id} onClick={()=>void saveStock(p)} className="underline disabled:opacity-50">{savingStock===p.id?'Saving…':'Save stock'}</button></div></td><td className="p-3"><div className="flex gap-3"><button onClick={()=>beginEdit(p)} className="inline-flex items-center gap-1 underline"><Edit2 className="w-3 h-3"/>Edit</button><button onClick={()=>void removeProduct(p)} className="inline-flex items-center gap-1 text-rose-700 underline"><Trash2 className="w-3 h-3"/>Remove</button></div></td></tr>)}
+    </tbody></table></div>
+    {formOpen&&<div className="fixed inset-0 z-50 bg-black/50 p-4 overflow-y-auto"><form onSubmit={saveProduct} className="relative max-w-2xl mx-auto my-8 rounded-lg bg-white p-6 shadow-xl space-y-4"><button type="button" onClick={()=>setEditing(false)} aria-label="Close" className="absolute right-4 top-4"><X/></button><h2 className="text-xl font-bold">{editing?'Edit product':'Add product'}</h2>{error&&<p role="alert" className="text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded p-3">{error}</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <label className="text-xs font-semibold">Name<input required minLength={2} maxLength={160} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} className="mt-1 w-full border rounded p-2 font-normal"/></label>
+        <label className="text-xs font-semibold">URL slug<input required pattern="[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*" value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} className="mt-1 w-full border rounded p-2 font-normal" placeholder="ghost-chili-makhana"/></label>
+        <label className="text-xs font-semibold">Category<select value={form.category} onChange={e=>setForm({...form,category:e.target.value})} className="mt-1 w-full border rounded p-2 font-normal">{CATEGORIES.map(c=><option key={c.slug} value={c.slug}>{c.name}</option>)}</select></label>
+        <label className="text-xs font-semibold">Price (₹)<input required type="number" min="0" max="1000000" value={form.price} onChange={e=>setForm({...form,price:Number(e.target.value)})} className="mt-1 w-full border rounded p-2 font-normal"/></label>
+        <label className="text-xs font-semibold">Compare-at price (optional)<input type="number" min="0" value={form.compareAtPrice??''} onChange={e=>setForm({...form,compareAtPrice:e.target.value?Number(e.target.value):null})} className="mt-1 w-full border rounded p-2 font-normal"/></label>
+        <label className="text-xs font-semibold">Weight<input required value={form.weight} onChange={e=>setForm({...form,weight:e.target.value})} className="mt-1 w-full border rounded p-2 font-normal" placeholder="70g"/></label>
+        <label className="text-xs font-semibold">Stock<input required type="number" min="0" max="1000000" value={form.stock} onChange={e=>setForm({...form,stock:Number(e.target.value)})} className="mt-1 w-full border rounded p-2 font-normal"/></label>
+        <label className="text-xs font-semibold">Flavor<input value={form.flavor} onChange={e=>setForm({...form,flavor:e.target.value})} className="mt-1 w-full border rounded p-2 font-normal"/></label>
+        <label className="text-xs font-semibold">Badge (optional)<input value={form.badge??''} onChange={e=>setForm({...form,badge:e.target.value||null})} className="mt-1 w-full border rounded p-2 font-normal"/></label>
+        <label className="text-xs font-semibold sm:col-span-2">Image URLs or paths (comma separated)<input required value={form.imageText} onChange={e=>setForm({...form,imageText:e.target.value})} className="mt-1 w-full border rounded p-2 font-normal" placeholder="/images/snack.png"/></label>
+        <label className="text-xs font-semibold sm:col-span-2">Short description<input required maxLength={300} value={form.shortDescription} onChange={e=>setForm({...form,shortDescription:e.target.value})} className="mt-1 w-full border rounded p-2 font-normal"/></label>
+        <label className="text-xs font-semibold sm:col-span-2">Description<textarea required rows={3} value={form.description} onChange={e=>setForm({...form,description:e.target.value})} className="mt-1 w-full border rounded p-2 font-normal"/></label>
+        <label className="text-xs font-semibold sm:col-span-2">Tags (comma separated)<input value={form.tagsText} onChange={e=>setForm({...form,tagsText:e.target.value})} className="mt-1 w-full border rounded p-2 font-normal" placeholder="Spicy, Vegan"/></label>
       </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full text-left font-sans text-xs">
-          <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase">
-            <tr>
-              <th className="p-3">Product</th>
-              <th className="p-3">Category</th>
-              <th className="p-3">Price</th>
-              <th className="p-3">Stock level</th>
-              <th className="p-3">Badge</th>
-              <th className="p-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 text-slate-700">
-            {filtered.map(prod => (
-              <tr key={prod.id} className="hover:bg-slate-50">
-                <td className="p-3 flex items-center gap-3">
-                  <img src={prod.images[0]} alt={prod.name} className="w-8 h-8 rounded object-cover border border-slate-200" />
-                  <span className="font-bold text-slate-900">{prod.name}</span>
-                </td>
-                <td className="p-3">{prod.categoryName}</td>
-                <td className="p-3 font-semibold">{formatCurrency(prod.price)}</td>
-                <td className="p-3 font-mono">
-                  <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
-                    prod.stock < 25 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-800'
-                  }`}>
-                    {prod.stock} units
-                  </span>
-                </td>
-                <td className="p-3">
-                  {prod.badge && (
-                    <span className="px-2 py-0.5 bg-lime-100 text-slate-900 rounded font-semibold text-[10px]">
-                      {prod.badge}
-                    </span>
-                  )}
-                </td>
-                <td className="p-3 text-right space-x-2">
-                  <button
-                    onClick={() => alert(`Edit ${prod.name}`)}
-                    className="p-1 text-slate-500 hover:text-slate-800"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(prod.id)}
-                    className="p-1 text-slate-500 hover:text-rose-600"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+      <div className="flex justify-end gap-3"><button type="button" onClick={()=>setEditing(false)} className="px-4 py-2 border rounded">Cancel</button><button disabled={saving} className="px-4 py-2 bg-lime-500 font-semibold rounded disabled:opacity-50">{saving?'Saving…':editing?'Save changes':'Create product'}</button></div>
+    </form></div>}
+  </div>;
 };

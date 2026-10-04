@@ -4,12 +4,15 @@ import { productService } from '../services/productService';
 import { ProductGrid } from '../components/products/ProductGrid';
 import { PageTransition } from '../components/layout/PageTransition';
 import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
+import { useCart } from '../hooks/useCart';
 
 export const Category: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const categoryInfo = productService.getCategoryBySlug(slug || '');
   const products = productService.getProducts({ category: slug as any });
   const allCategories = productService.getCategories();
+  const {totalItemCount}=useCart();
 
   if (!categoryInfo) {
     return (
@@ -27,13 +30,10 @@ export const Category: React.FC = () => {
       <div className="py-12 bg-paper min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <Link
-            to="/shop"
-            className="inline-flex items-center font-mono text-xs font-bold text-gray-600 hover:text-brand-black mb-6 uppercase"
-          >
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            BACK TO ALL SNACKS
-          </Link>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <Link to="/shop" className="inline-flex items-center font-mono text-xs font-bold text-gray-600 hover:text-brand-black uppercase"><ArrowLeft className="w-4 h-4 mr-1" />BACK TO ALL SNACKS</Link>
+            <Link to="/cart" className="inline-flex items-center gap-2 px-4 py-2 bg-brand-lime border-2 border-brand-black shadow-brutal-sm font-display font-bold text-sm uppercase hover:bg-brand-black hover:text-brand-lime"><ShoppingBag className="w-4 h-4"/>View Cart ({totalItemCount})</Link>
+          </div>
 
           {/* Category Banner Hero */}
           <div className={`p-8 sm:p-12 border-4 border-brand-black shadow-brutal-lg mb-12 relative overflow-hidden ${categoryInfo.bgAccent}`}>

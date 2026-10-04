@@ -30,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onOpenMobileNav })
 
   const navLinks = [
     { label: 'SHOP', path: '/shop' },
-    { label: 'CATEGORIES', path: '/shop?tab=categories' },
+    { label: 'CATEGORIES', path: '/categories' },
     { label: 'SNACK FINDER', path: '/snack-finder' },
     { label: 'BUILD YOUR BOX', path: '/build-your-box', badge: 'POPULAR' },
   ];
@@ -66,7 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onOpenMobileNav })
         {/* CENTER: Navigation Links */}
         <nav className="hidden md:flex items-center space-x-6">
           {navLinks.map(link => {
-            const isActive = location.pathname === link.path;
+            const isActive = location.pathname === link.path || (link.path === '/categories' && location.pathname.startsWith('/category/'));
             return (
               <Link
                 key={link.path}

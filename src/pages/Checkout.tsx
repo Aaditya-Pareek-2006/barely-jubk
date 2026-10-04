@@ -31,8 +31,9 @@ export const Checkout: React.FC = () => {
   });
 
   const [deliveryMethod, setDeliveryMethod] = useState<'standard' | 'express'>('express');
-  const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'Card' | 'NetBanking' | 'Cash on Delivery'>('UPI');
+  const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'Card' | 'NetBanking' | 'Cash on Delivery' | 'Mock UPI (Test)'>('Mock UPI (Test)');
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
+  const [mockPaymentOrder, setMockPaymentOrder] = useState<Order | null>(null);
   const [checkoutError,setCheckoutError]=useState('');
   const deliveryFee=deliveryMethod==='express'&&cartSummary.appliedCoupon?.code!=='FREESHIP'?49:0;
   const taxAmount=Math.round((cartSummary.subtotal-cartSummary.discount)*0.05);
@@ -60,6 +61,7 @@ export const Checkout: React.FC = () => {
     setCheckoutError('');
     try{
       const result=await orderService.createOrder(cartItems,address,paymentMethod,deliveryMethod,cartSummary.appliedCoupon?.code);
+      if(paymentMethod==='Mock UPI (Test)'){setMockPaymentOrder(result.order);return;}
       if(!result.payment){finishOrder(result.order);return;}
       const script=document.createElement('script');script.src='https://checkout.razorpay.com/v1/checkout.js';script.async=true;
       script.onerror=()=>setCheckoutError('Could not load the secure payment window. Please try again.');
@@ -77,6 +79,17 @@ export const Checkout: React.FC = () => {
       if(/authentication required|session expired/i.test(message)){setAccessToken(null);navigate('/login',{replace:true,state:{from:'/checkout'}});return;}
       setCheckoutError(message);
     }
+  };
+
+  const handleMockPayment=async(outcome:'success'|'failure')=>{
+    if(!mockPaymentOrder)return;
+    setCheckoutError('');
+    try{
+      const result=await orderService.simulateMockPayment(mockPaymentOrder.id,outcome);
+      setMockPaymentOrder(null);
+      if(outcome==='success')finishOrder(result.order);
+      else setCheckoutError('Mock UPI payment failed. The order was cancelled and its stock was restored. You can place the order again.');
+    }catch(err){setCheckoutError(err instanceof Error?err.message:'Could not simulate payment. Please try again.');}
   };
 
   if(!getAccessToken())return <PageTransition><div className="py-20 text-center font-mono">REDIRECTING TO SECURE SIGN IN…</div></PageTransition>;
@@ -332,7 +345,7 @@ export const Checkout: React.FC = () => {
                   </h3>
 
                   <div className="grid grid-cols-2 gap-3">
-                    {['UPI', 'Card', 'NetBanking', 'Cash on Delivery'].map((pm) => (
+                    {['Mock UPI (Test)', 'UPI', 'Card', 'NetBanking', 'Cash on Delivery'].map((pm) => (
                       <button
                         type="button"
                         key={pm}
@@ -343,13 +356,13 @@ export const Checkout: React.FC = () => {
                             : 'bg-white text-gray-700 hover:border-brand-black'
                         }`}
                       >
-                        {pm === 'UPI' ? '⚡ UPI / GPAY' : pm === 'Card' ? '💳 CREDIT/DEBIT CARD' : pm}
+                        {pm === 'Mock UPI (Test)' ? '🧪 MOCK UPI (TEST)' : pm === 'UPI' ? '⚡ UPI / GPAY' : pm === 'Card' ? '💳 CREDIT/DEBIT CARD' : pm}
                       </button>
                     ))}
                   </div>
 
                   <div className="p-4 bg-paper-dark border border-brand-black text-gray-600 text-xs font-mono">
-                    ℹ️ Card, UPI and net banking payments are securely processed by Razorpay.
+                    {paymentMethod==='Mock UPI (Test)'?'🧪 TEST ONLY: No bank, UPI app, or real money is involved. Choose a simulated result on the review step.':'ℹ️ Card, UPI and net banking payments are securely processed by Razorpay.'}
                   </div>
 
                   <div className="flex gap-3 pt-4">
@@ -373,9 +386,20 @@ export const Checkout: React.FC = () => {
                     <p><span className="font-bold">DELIVERY:</span> {deliveryMethod==='express'?'EXPRESS (1–2 DAYS)':'STANDARD (3–5 DAYS)'}</p>
                   </div>
 
-                  <Button variant="accent" size="xl" isFullWidth onClick={handleConfirmOrder}>
-                    CONFIRM & PLACE ORDER ({formatCurrency(checkoutTotal)})
-                  </Button>
+                  {mockPaymentOrder ? (
+                    <div className="space-y-3 border-2 border-brand-black p-4 bg-amber-50">
+                      <p className="font-bold">TEST UPI PAYMENT — ORDER {mockPaymentOrder.id}</p>
+                      <p>Choose a simulated result. This does not contact a bank or transfer money.</p>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Button variant="accent" className="flex-1" onClick={()=>void handleMockPayment('success')}>SIMULATE SUCCESS</Button>
+                        <Button variant="outline" className="flex-1" onClick={()=>void handleMockPayment('failure')}>SIMULATE FAILURE</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button variant="accent" size="xl" isFullWidth onClick={handleConfirmOrder}>
+                      {paymentMethod==='Mock UPI (Test)'?'CREATE TEST PAYMENT':'CONFIRM & PLACE ORDER'} ({formatCurrency(checkoutTotal)})
+                    </Button>
+                  )}
                 </div>
               )}
 

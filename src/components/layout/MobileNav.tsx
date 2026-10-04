@@ -16,6 +16,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onOpenSea
   const links = [
     { label: 'HOME', path: '/' },
     { label: 'SHOP ALL SNACKS', path: '/shop' },
+    { label: 'CATEGORIES', path: '/categories' },
     { label: 'SNACK FINDER', path: '/snack-finder' },
     { label: 'BUILD YOUR BOX 📦', path: '/build-your-box' },
     { label: 'MY WISHLIST', path: '/wishlist' },

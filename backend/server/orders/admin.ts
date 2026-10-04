@@ -16,8 +16,8 @@ ordersAdminRouter.get('/',async(_req,res,next)=>{
 ordersAdminRouter.patch('/:id/status',async(req,res,next)=>{
   try{
     const {status}=z.object({status:z.enum(['ORDER PLACED','PACKED','SHIPPED','OUT FOR DELIVERY','DELIVERED','CANCELLED'])}).parse(req.body);
-    const {rows}=await pool.query('UPDATE orders SET status=$2 WHERE display_id=$1 RETURNING display_id AS id,status,payment_status AS "paymentStatus"',[req.params.id,status]);
-    if(!rows[0])return res.status(404).json({error:'Order not found.'});
+    const {rows}=await pool.query(`UPDATE orders SET status=$2 WHERE display_id=$1 AND ($2 IN ('CANCELLED','ORDER PLACED') OR payment_status='Paid' OR payment_method='Cash on Delivery') RETURNING display_id AS id,status,payment_status AS "paymentStatus"`,[req.params.id,status]);
+    if(!rows[0]){const existing=await pool.query('SELECT 1 FROM orders WHERE display_id=$1',[req.params.id]);if(existing.rowCount)return res.status(409).json({error:'Only paid or cash-on-delivery orders can move into fulfillment.'});return res.status(404).json({error:'Order not found.'});}
     res.json(rows[0]);
   }catch(error){next(error);}
 });

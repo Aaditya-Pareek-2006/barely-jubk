@@ -7,7 +7,7 @@ import { requireAuth } from '../middleware/auth.js';
 
 export const ordersRouter = Router();
 const addressSchema = z.object({ fullName:z.string().min(2).max(100),email:z.string().email(),phone:z.string().min(8).max(30),street:z.string().min(3).max(200),city:z.string().min(2).max(100),state:z.string().min(2).max(100),pincode:z.string().min(4).max(12),landmark:z.string().max(200).optional() });
-const createSchema = z.object({ items:z.array(z.object({ productId:z.string().min(1),quantity:z.number().int().min(1).max(50) })).min(1).max(50),shippingAddress:addressSchema,paymentMethod:z.enum(['UPI','Card','NetBanking','Cash on Delivery']),deliveryMethod:z.enum(['express','standard']),couponCode:z.string().max(30).optional() });
+const createSchema = z.object({ items:z.array(z.object({ productId:z.string().min(1),quantity:z.number().int().min(1).max(50) })).min(1).max(50),shippingAddress:addressSchema,paymentMethod:z.enum(['UPI','Card','NetBanking','Cash on Delivery','Mock UPI (Test)']),deliveryMethod:z.enum(['express','standard']),couponCode:z.string().max(30).optional() });
 const razorpay = () => {
   if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) throw new Error('Razorpay is not configured.');
   return new Razorpay({ key_id:process.env.RAZORPAY_KEY_ID,key_secret:process.env.RAZORPAY_KEY_SECRET });
@@ -52,6 +52,7 @@ ordersRouter.post('/', async (req,res,next) => {
     for(const p of products) await client.query('UPDATE products SET stock=stock-$2 WHERE id=$1',[p.id,p.quantity]);
     if(pending){
       await client.query('COMMIT');
+      if(body.paymentMethod==='Mock UPI (Test)')return res.status(201).json({order:toOrder(orderResult.rows[0]),payment:null});
       let rpOrder;
       try{rpOrder=await razorpay().orders.create({amount:total*100,currency:'INR',receipt:displayId,notes:{displayId,userId:req.auth!.id}});}
       catch(error){
@@ -66,6 +67,33 @@ ordersRouter.post('/', async (req,res,next) => {
     await client.query('COMMIT');
     res.status(201).json({order:toOrder(orderResult.rows[0]),payment:null});
   } catch(err){await client.query('ROLLBACK').catch(()=>{});next(err);} finally{client.release();}
+});
+
+ordersRouter.post('/:id/mock-payment',async(req,res,next)=>{
+  if(process.env.NODE_ENV==='production')return res.status(404).json({error:'Mock payments are disabled.'});
+  const outcomeSchema=z.object({outcome:z.enum(['success','failure'])});
+  const client=await pool.connect();
+  try{
+    const {outcome}=outcomeSchema.parse(req.body);
+    await client.query('BEGIN');
+    const {rows}=await client.query('SELECT * FROM orders WHERE user_id=$1 AND display_id=$2 FOR UPDATE',[req.auth!.id,req.params.id]);
+    const order=rows[0];
+    if(!order){await client.query('ROLLBACK');return res.status(404).json({error:'Order not found.'});}
+    if(order.payment_method!=='Mock UPI (Test)'){await client.query('ROLLBACK');return res.status(400).json({error:'This order is not a mock UPI payment.'});}
+    if(order.payment_status!=='Pending'){await client.query('ROLLBACK');return res.status(409).json({error:'This mock payment has already been completed.'});}
+    if(outcome==='success'){
+      const updated=await client.query("UPDATE orders SET payment_status='Paid' WHERE id=$1 RETURNING *",[order.id]);
+      await client.query('COMMIT');
+      return res.json({order:toOrder(updated.rows[0])});
+    }
+    for(const item of order.items){
+      const productId=item.product?.id;
+      if(productId)await client.query('UPDATE products SET stock=stock+$2 WHERE id=$1',[productId,item.quantity]);
+    }
+    const updated=await client.query("UPDATE orders SET payment_status='Failed',status='CANCELLED' WHERE id=$1 RETURNING *",[order.id]);
+    await client.query('COMMIT');
+    res.json({order:toOrder(updated.rows[0])});
+  }catch(err){await client.query('ROLLBACK').catch(()=>{});next(err);}finally{client.release();}
 });
 
 ordersRouter.post('/:id/verify-payment',async(req,res,next)=>{

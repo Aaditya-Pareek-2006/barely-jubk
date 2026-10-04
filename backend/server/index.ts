@@ -16,7 +16,7 @@ const app=express();
 app.disable('x-powered-by');
 app.set('trust proxy',process.env.TRUST_PROXY==='true' ? 1 : false);
 app.use(helmet({crossOriginResourcePolicy:{policy:'cross-origin'}}));
-app.use(cors({origin:(process.env.FRONTEND_ORIGIN||'http://localhost:5173').split(',').map(s=>s.trim()),credentials:true,methods:['GET','POST','PATCH','OPTIONS'],allowedHeaders:['Content-Type','Authorization']}));
+app.use(cors({origin:(process.env.FRONTEND_ORIGIN||'http://localhost:5173').split(',').map(s=>s.trim()),credentials:true,methods:['GET','POST','PATCH','DELETE','OPTIONS'],allowedHeaders:['Content-Type','Authorization']}));
 app.use('/api/payments/webhook',express.raw({type:'application/json',limit:'1mb'}),async(req,res)=>{
   try{await razorpayWebhook(req.body,req.header('x-razorpay-signature'),req.header('x-razorpay-event-id'),req.header('x-razorpay-event'));res.sendStatus(200);}
   catch(err){console.error('Razorpay webhook rejected:',err);res.sendStatus(400);}
