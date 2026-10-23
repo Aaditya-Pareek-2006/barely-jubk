@@ -45,7 +45,8 @@ export const Login: React.FC = () => {
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="junkie@barelyjunk.com"
+                autoComplete="email"
+                placeholder="e.g. you@example.com"
                 className="w-full p-3 border-2 border-brand-black font-sans text-sm focus:outline-none focus:border-brand-lime"
               />
             </div>
@@ -56,9 +57,10 @@ export const Login: React.FC = () => {
                 type="password"
                 required
                 minLength={8}
+                autoComplete="current-password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 className="w-full p-3 border-2 border-brand-black font-sans text-sm focus:outline-none focus:border-brand-lime"
               />
             </div>

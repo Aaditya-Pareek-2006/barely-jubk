@@ -95,6 +95,7 @@ export const Profile: React.FC = () => {
                     type="text"
                     value={name}
                     onChange={e => setName(e.target.value)}
+                    placeholder="e.g. Aaditya Sharma"
                     className="w-full p-2.5 border-2 border-brand-black font-sans text-sm"
                   />
                 </div>
@@ -105,6 +106,7 @@ export const Profile: React.FC = () => {
                     type="email"
                     disabled
                     value={user.email}
+                    placeholder="you@example.com"
                     className="w-full p-2.5 border-2 border-brand-black bg-gray-100 font-sans text-sm"
                   />
                 </div>
@@ -115,6 +117,7 @@ export const Profile: React.FC = () => {
                     type="text"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
+                    placeholder="e.g. 98765 43210"
                     className="w-full p-2.5 border-2 border-brand-black font-sans text-sm"
                   />
                 </div>

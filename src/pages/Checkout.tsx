@@ -23,11 +23,11 @@ export const Checkout: React.FC = () => {
     fullName: currentUser?.name || '',
     email: currentUser?.email || '',
     phone: currentUser?.phone || '',
-    street: '42 Cyberpunk Enclave, Sector 62',
-    city: 'Noida',
-    state: 'Uttar Pradesh',
-    pincode: '201301',
-    landmark: 'Near Neon Tower',
+    street: '',
+    city: '',
+    state: '',
+    pincode: '',
+    landmark: '',
   });
 
   const [deliveryMethod, setDeliveryMethod] = useState<'standard' | 'express'>('express');
@@ -216,8 +216,10 @@ export const Checkout: React.FC = () => {
                       <input
                         type="text"
                         required
+                        autoComplete="name"
                         value={address.fullName}
                         onChange={e => setAddress({ ...address, fullName: e.target.value })}
+                        placeholder="e.g. Aaditya Sharma"
                         className="w-full p-2.5 border-2 border-brand-black"
                       />
                     </div>
@@ -226,8 +228,11 @@ export const Checkout: React.FC = () => {
                       <input
                         type="text"
                         required
+                        autoComplete="tel"
+                        inputMode="tel"
                         value={address.phone}
                         onChange={e => setAddress({ ...address, phone: e.target.value })}
+                        placeholder="e.g. 98765 43210"
                         className="w-full p-2.5 border-2 border-brand-black"
                       />
                     </div>
@@ -238,8 +243,10 @@ export const Checkout: React.FC = () => {
                     <input
                       type="email"
                       required
+                      autoComplete="email"
                       value={address.email}
                       onChange={e => setAddress({ ...address, email: e.target.value })}
+                      placeholder="e.g. you@example.com"
                       className="w-full p-2.5 border-2 border-brand-black"
                     />
                   </div>
@@ -249,8 +256,10 @@ export const Checkout: React.FC = () => {
                     <input
                       type="text"
                       required
+                      autoComplete="street-address"
                       value={address.street}
                       onChange={e => setAddress({ ...address, street: e.target.value })}
+                      placeholder="e.g. Flat 12, 42 Market Road"
                       className="w-full p-2.5 border-2 border-brand-black"
                     />
                   </div>
@@ -261,8 +270,10 @@ export const Checkout: React.FC = () => {
                       <input
                         type="text"
                         required
+                        autoComplete="address-level2"
                         value={address.city}
                         onChange={e => setAddress({ ...address, city: e.target.value })}
+                        placeholder="e.g. Noida"
                         className="w-full p-2 border-2 border-brand-black"
                       />
                     </div>
@@ -271,8 +282,10 @@ export const Checkout: React.FC = () => {
                       <input
                         type="text"
                         required
+                        autoComplete="address-level1"
                         value={address.state}
                         onChange={e => setAddress({ ...address, state: e.target.value })}
+                        placeholder="e.g. Uttar Pradesh"
                         className="w-full p-2 border-2 border-brand-black"
                       />
                     </div>
@@ -281,11 +294,26 @@ export const Checkout: React.FC = () => {
                       <input
                         type="text"
                         required
+                        autoComplete="postal-code"
+                        inputMode="numeric"
                         value={address.pincode}
                         onChange={e => setAddress({ ...address, pincode: e.target.value })}
+                        placeholder="e.g. 201301"
                         className="w-full p-2 border-2 border-brand-black"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold block mb-1">LANDMARK (OPTIONAL):</label>
+                    <input
+                      type="text"
+                      autoComplete="off"
+                      value={address.landmark}
+                      onChange={e => setAddress({ ...address, landmark: e.target.value })}
+                      placeholder="e.g. Near City Mall"
+                      className="w-full p-2.5 border-2 border-brand-black"
+                    />
                   </div>
 
                   <Button type="submit" variant="accent" size="lg" isFullWidth className="mt-4">

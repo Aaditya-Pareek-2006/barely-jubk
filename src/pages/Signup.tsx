@@ -46,7 +46,8 @@ export const Signup: React.FC = () => {
                 required
                 value={name}
                 onChange={e => setName(e.target.value)}
-                placeholder="SEHAJDEEP SINGH"
+                autoComplete="name"
+                placeholder="e.g. Aaditya Sharma"
                 className="w-full p-3 border-2 border-brand-black font-sans text-sm focus:outline-none focus:border-brand-lime"
               />
             </div>
@@ -58,7 +59,8 @@ export const Signup: React.FC = () => {
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="junkie@barelyjunk.com"
+                autoComplete="email"
+                placeholder="e.g. you@example.com"
                 className="w-full p-3 border-2 border-brand-black font-sans text-sm focus:outline-none focus:border-brand-lime"
               />
             </div>
@@ -69,9 +71,10 @@ export const Signup: React.FC = () => {
                 type="password"
                 required
                 minLength={8}
+                autoComplete="new-password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="At least 8 characters"
                 className="w-full p-3 border-2 border-brand-black font-sans text-sm focus:outline-none focus:border-brand-lime"
               />
             </div>
